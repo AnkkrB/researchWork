@@ -293,16 +293,32 @@ main()
 			TxPacket[radio_header->PphLength+1] = 218;
 			TxPacket[radio_header->PphLength+2] = 186;
 			TxPacket[radio_header->PphLength+3] = 113;
-
+			
 			//Dest Address - 00:80:48:6F:23:05
 			TxPacket[radio_header->PphLength+4] = 0;
 			TxPacket[radio_header->PphLength+5] = 128;
 			TxPacket[radio_header->PphLength+6] = 72;
-			TxPacket[radio_header->PphLength+7] = 111;
-			TxPacket[radio_header->PphLength+8] = 35;
-			TxPacket[radio_header->PphLength+9] = 5;
+			TxPacket[radio_header->PphLength+7] = 105;
+			TxPacket[radio_header->PphLength+8] = 52;
+			TxPacket[radio_header->PphLength+9] = 23;
+
 
 			//Source Address - 00:80:48:6F:25:02
+			TxPacket[radio_header->PphLength + 10] = MacAddress.Address[0];
+			TxPacket[radio_header->PphLength + 11] = MacAddress.Address[1];
+			TxPacket[radio_header->PphLength + 12] = MacAddress.Address[2];
+			TxPacket[radio_header->PphLength + 13] = MacAddress.Address[3];
+			TxPacket[radio_header->PphLength + 14] = MacAddress.Address[4];
+			TxPacket[radio_header->PphLength + 15] = MacAddress.Address[5];
+
+			//BSS ID
+			TxPacket[radio_header->PphLength + 16] = MacAddress.Address[0];
+			TxPacket[radio_header->PphLength + 17] = MacAddress.Address[1];
+			TxPacket[radio_header->PphLength + 18] = MacAddress.Address[2];
+			TxPacket[radio_header->PphLength + 19] = MacAddress.Address[3];
+			TxPacket[radio_header->PphLength + 20] = MacAddress.Address[4];
+			TxPacket[radio_header->PphLength + 21] = MacAddress.Address[5];
+/*
 			TxPacket[radio_header->PphLength+10] = 0;
 			TxPacket[radio_header->PphLength+11] = 128;
 			TxPacket[radio_header->PphLength+12] = 72;
@@ -317,7 +333,7 @@ main()
 			TxPacket[radio_header->PphLength+19] = 111;
 			TxPacket[radio_header->PphLength+20] = 37;
 			TxPacket[radio_header->PphLength+21] = 2;
-
+*/
 
 			TxPacket[radio_header->PphLength+24] = 106;	//6A
 			TxPacket[radio_header->PphLength+25] = 10;	//A
