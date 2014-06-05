@@ -173,14 +173,14 @@ main()
 	for(d = alldevs,i=0;i<inum-1; d=d->next, i++)
 		printf("%d, %s", d,d->name);
 
-		//if((winpcap_adapter = pcap_open_live(d->name, 65536, 1, 1000, errbuf))== NULL)
-		if((winpcap_adapter = pcap_open_live(d->name,			
-		65536,												
+	//if((winpcap_adapter = pcap_open_live(d->name, 65536, 1, 1000, errbuf))== NULL)
+	if((winpcap_adapter = pcap_open_live(d->name,			
+											65536,												
 															
-		1,													
-		1000,												
-		errbuf												
-		)) == NULL)
+											1,													
+											1000,												
+											errbuf												
+											)) == NULL)
 		{
 			printf("Error in opening adapter : (%s)", errbuf);
 			pcap_freealldevs(alldevs);
@@ -200,14 +200,41 @@ main()
 			printf("Error in Setting the Channel : %s", AirpcapGetLastError(airpcap_handle));
 			return -1;
 		}
+
+		// Get the MAC address
+		//
+		if(!AirpcapGetMacAddress(airpcap_handle, &MacAddress))
+		{
+			printf("Error retrieving the MAC address: %s\n", AirpcapGetLastError(airpcap_handle));
+			return -1;
+		}
+
+		//
+		// Print the address
+		//
+		printf("\n2: Mac address of Airpcap adapter (main function):\n");
+		printf("\t\t\t%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+			MacAddress.Address[0],
+			MacAddress.Address[1],
+			MacAddress.Address[2],
+			MacAddress.Address[3],
+			MacAddress.Address[4],
+			MacAddress.Address[5]);
+		printf("\t\t\t%.2d:%.2d:%.2d:%.2d:%.2d:%.2d\n",
+			MacAddress.Address[0],
+			MacAddress.Address[1],
+			MacAddress.Address[2],
+			MacAddress.Address[3],
+			MacAddress.Address[4],
+			MacAddress.Address[5]);
 		
 		//Including PPI headers over the packet
 
 			if(!AirpcapSetLinkType(airpcap_handle, AIRPCAP_LT_802_11_PLUS_PPI))
 			{
-			printf("Error in Setting the Link Layer %s \n", AirpcapGetLastError(airpcap_handle));
-			pcap_close(winpcap_adapter);
-			return -1;
+				printf("Error in Setting the Link Layer %s \n", AirpcapGetLastError(airpcap_handle));
+				pcap_close(winpcap_adapter);
+				return -1;
 			}
 
 			testpacket = 1;
