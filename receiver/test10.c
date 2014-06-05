@@ -269,6 +269,9 @@ void PrintPackets(BYTE *PacketBuffer, ULONG BufferSize)
 		len = pPpiPacketHeader->PphLength;
 		tempcounterrssicombined = pPpiPacketHeader->RssiCombined;
 		//PpiHdrLen = PpiPrint(pChar, TLen);
+		
+		fprintf(fpData, "\n****  TLen1 = %d, TLen = %d, Off = %d, len = %d", TLen1, TLen, Off, len);
+		
 		 
 		PrintFrameData(pChar+len, TLen-len);
 
@@ -308,7 +311,7 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		printf("\n2: Testing : %d",(GetMicrosecondsElapsed(sendTimer)-dummy));
 		fprintf(fpData, "\n2: Testing : %d", (GetMicrosecondsElapsed(sendTimer) - dummy));
 		//Send the packet
-		printf("HI");
+	
 		if(mcscode!=4)
 		{
 			noOfpktSent = ((52 * 30 * 1000000) / (Tx_packet_len * 8)) + 0.5;
@@ -474,6 +477,29 @@ int sendPackets(int devno, int ratesend)
 	TxPacket_tst[radio_header->PphLength+9] = 2;
 
 	//Source Address - 00:80:48:6F:23:05
+	TxPacket_tst[radio_header->PphLength + 10] = MacAddress.Address[0];
+	TxPacket_tst[radio_header->PphLength + 11] = MacAddress.Address[1];
+	TxPacket_tst[radio_header->PphLength + 12] = MacAddress.Address[2];
+	TxPacket_tst[radio_header->PphLength + 13] = MacAddress.Address[3];
+	TxPacket_tst[radio_header->PphLength + 14] = MacAddress.Address[4];
+	TxPacket_tst[radio_header->PphLength + 15] = MacAddress.Address[5];
+
+	//BSS ID
+	TxPacket_tst[radio_header->PphLength + 16] = MacAddress.Address[0];
+	TxPacket_tst[radio_header->PphLength + 17] = MacAddress.Address[1];
+	TxPacket_tst[radio_header->PphLength + 18] = MacAddress.Address[2];
+	TxPacket_tst[radio_header->PphLength + 19] = MacAddress.Address[3];
+	TxPacket_tst[radio_header->PphLength + 20] = MacAddress.Address[4];
+	TxPacket_tst[radio_header->PphLength + 21] = MacAddress.Address[5];
+/*
+	TxPacket_tst[radio_header->PphLength+4] = 0;
+	TxPacket_tst[radio_header->PphLength+5] = 128;
+	TxPacket_tst[radio_header->PphLength+6] = 72;
+	TxPacket_tst[radio_header->PphLength+7] = 105;
+	TxPacket_tst[radio_header->PphLength+8] = 52;
+	TxPacket_tst[radio_header->PphLength+9] = 23;
+
+	//Source Address - 00:80:48:6F:23:05
 	TxPacket_tst[radio_header->PphLength+10] = 0;
 	TxPacket_tst[radio_header->PphLength+11] = 128;
 	TxPacket_tst[radio_header->PphLength+12] = 72;
@@ -488,8 +514,8 @@ int sendPackets(int devno, int ratesend)
 	TxPacket_tst[radio_header->PphLength+19] = 111;
 	TxPacket_tst[radio_header->PphLength+20] = 35;
 	TxPacket_tst[radio_header->PphLength+21] = 5;
-
-	TxPacket_tst[radio_header->PphLength+24] = 106;	//6A
+*/
+	TxPacket_tst[radio_header->PphLength+24] = 106;	//6A	// TBD analyze these header fields
 	TxPacket_tst[radio_header->PphLength+25] = 10;	//A
 	TxPacket_tst[radio_header->PphLength+26] = 218;	//DA
 	TxPacket_tst[radio_header->PphLength+27] = 154;	//9A
