@@ -131,6 +131,7 @@ main()
 	HANDLE testhandle;
 	LPDWORD lpThreadId;
 	int Sleeptime_new = 624;
+	int ascii = 0;
 
 	AirpcapMacAddress MacAddress;
 
@@ -415,6 +416,8 @@ void receive_loop()
 	BYTE* PacketBuffer;
 	UINT BytesReceived;
 	HANDLE ReadEvent;
+	UINT minBufLen = 4050;
+	UINT* kernelBuf = &minBufLen;
 
 	Inum = 1;
 
@@ -445,6 +448,26 @@ void receive_loop()
 		AirpcapClose(Ad);
 		EXIT_FAILURE;
 	}
+
+	//An
+#if 0	
+	if (!AirpcapGetKernelBufferSize(Ad, kernelBuf)) {
+		printf("Error getting the read event: %s\n", AirpcapGetLastError(Ad));
+		fprintf(fpData, "\nE5: Error getting the read event: %s\n", AirpcapGetLastError(Ad));
+		AirpcapClose(Ad);
+		EXIT_FAILURE;
+	}
+	printf("\n6: kernelBuf = %d", &kernelBuf);
+	fprintf(fpData, "\n6: kernelBuf = %d", &kernelBuf);
+
+
+	if (!AirpcapSetMinToCopy(Ad, minBufLen)) {
+		printf("Error getting the read event: %s\n", AirpcapGetLastError(Ad));
+		fprintf(fpData, "\nE6: Error getting the read event: %s\n", AirpcapGetLastError(Ad));
+		AirpcapClose(Ad);
+		EXIT_FAILURE;
+	}
+#endif	
 	//An - this below event is signalled when at least mintocopy bytes are present in the kernel buffer. 
 	//This event can be used by WaitForSingleObject() and WaitForMultipleObjects() to create blocking behavior when reading packets from one or more adapters
 	if(!AirpcapGetReadEvent(Ad, &ReadEvent))
