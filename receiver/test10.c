@@ -45,6 +45,9 @@ main()
 	UINT BytesReceived;
 	HANDLE ReadEvent;
 
+
+	//An
+	AirpcapMacAddress MacAddress;
 	//
 	// Get the device list
 	//
@@ -123,6 +126,29 @@ main()
 	//
 	AirpcapFreeDeviceList(AllDevs);
 
+	//An
+	// Get the MAC address
+	//
+	if (!AirpcapGetMacAddress(Ad, &MacAddress))
+	{
+		printf("Error retrieving the MAC address: %s\n", AirpcapGetLastError(Ad));
+		return -1;
+	}
+	printf("\nMAC address of Airpcap adapter (main function):\n");
+	printf("\t\t\t%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",	
+		MacAddress.Address[0],
+		MacAddress.Address[1],
+		MacAddress.Address[2],
+		MacAddress.Address[3],
+		MacAddress.Address[4],
+		MacAddress.Address[5]);
+	printf("\t\t\t%.2d:%.2d:%.2d:%.2d:%.2d:%.2d\n",
+		MacAddress.Address[0],
+		MacAddress.Address[1],
+		MacAddress.Address[2],
+		MacAddress.Address[3],
+		MacAddress.Address[4],
+		MacAddress.Address[5]);
 	//
 	// Set the link layer to 802.11 plus ppi headers
 	//
@@ -344,6 +370,35 @@ int sendPackets(int devno, int ratesend)
 	pcap_close(winpcap_adapter);
 	return -1;
 	}
+	//An
+	// Get the MAC address
+	//
+	if (!AirpcapGetMacAddress(airpcap_handle, &MacAddress))
+	{
+		printf("Error retrieving the MAC address: %s\n", AirpcapGetLastError(airpcap_handle));
+		fprintf(fpData, "\n15: Error retrieving the MAC address: %s\n", AirpcapGetLastError(airpcap_handle));
+		return -1;
+	}
+
+	//
+	// Print the address
+	//
+	printf("\n16: MAC address of Airpcap adapter (send Packet function):\n");
+	printf("\t\t\t%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+		MacAddress.Address[0],
+		MacAddress.Address[1],
+		MacAddress.Address[2],
+		MacAddress.Address[3],
+		MacAddress.Address[4],
+		MacAddress.Address[5]);
+	fprintf(fpData, "\n16: MAC address of Airpcap adapter (send Packet function):\n");
+	fprintf(fpData, "\t\t\t%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+		MacAddress.Address[0],
+		MacAddress.Address[1],
+		MacAddress.Address[2],
+		MacAddress.Address[3],
+		MacAddress.Address[4],
+		MacAddress.Address[5]);
 
 	radio_header = (PPI_PACKET_HEADER*)TxPacket_tst;
 	radio_header->PphLength = sizeof(PPI_PACKET_HEADER);
