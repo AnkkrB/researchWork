@@ -32,7 +32,7 @@ u_int8_t TxPacket_tst[Test_tx_len+sizeof(PPI_PACKET_HEADER)];
 pTimer loopTimer;
 pTimer sendTimer;
 int dummy = 0, devicenum = 0;
-int testcounter = 0, tempcounterrssicombined = 0, rssitotalcount = 0;
+int noOfpktRcvd = 0, tempcounterrssicombined = 0, rssitotalcount = 0;
 
 
 main()
@@ -252,15 +252,15 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 {
 	ULONG i, j, ulLines, ulen;
 	BYTE *pLine, *Base;
-	int xlength = 0, dummyval = 1, ratesend = 0, lossrate = 0, testval = 0, mcscode = 12;
+	int xlength = 0, dummyval = 1, ratesend = 0, lossrate = 0, noOfpktSent = 0, mcscode = 12;
 	float x = 0;
 
 	ulLines = (PayloadLen + 15) / 16;
 	Base = Payload;
 	xlength = PayloadLen-4;
-	if(xlength==4050)
+	if (xlength == Tx_packet_len)
 	{
-		testcounter++;
+		noOfpktRcvd++;
 		printf("\n");
 		printf("%d",testcounter);
 		printf("\n");
@@ -280,19 +280,21 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		printf("HI");
 		if(mcscode!=4)
 		{
-			testval = ((52*30*1000000)/(4050*8))+0.5;
-			lossrate = (((testval-testcounter)*100)/testval);
+			noOfpktSent = ((52 * 30 * 1000000) / (Tx_packet_len * 8)) + 0.5;
+			lossrate = (((noOfpktSent-noOfpktRcvd)*100)/noOfpktSent);
 			printf("\n");
 			printf("%d", lossrate);
 			printf("\n");
 		}else{
-			testval = ((39*30*1000000)/(4050*8))+0.5;
-			lossrate = (((testval-testcounter)*100)/testval);
+			noOfpktSent = ((39*30*1000000)/(Tx_packet_len * +8))+0.5;
+			lossrate = (((noOfpktSent-noOfpktRcvd)*100)/noOfpktSent);
 			printf("\n");
 			printf("%d", lossrate);
 			printf("\n");
 		}
-		x = (rssitotalcount/testcounter)*100; 
+		//an 
+		if (noOfpktRcvd>0) // temp fix for runtime exception // TBD analyze
+			x = (rssitotalcount/noOfpktRcvd)*100; 
 		if((100-lossrate)<85 && (100-lossrate)>=70 && (x>=60))
 		{
 			mcscode = 5;
@@ -308,7 +310,7 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		{
 			dummy = GetMicrosecondsElapsed(sendTimer);
 		}
-		testcounter = 0;
+		noOfpktRcvd = 0;
 		rssitotalcount = 0;
 	}
 }
@@ -316,13 +318,14 @@ int sendPackets(int devno, int ratesend)
 {
 	pcap_t *winpcap_adapter;
 	pcap_if_t *alldevs, *d;
-	int i = 0, tempval = 0, testvalrem = 0, testvalquo = 0, sequnit = 0, seqtens = 0, seqhrds = 0;
+	int i = 0, tempval = 0, noOfpktSentrem = 0, noOfpktSentquo = 0, sequnit = 0, seqtens = 0, seqhrds = 0;
 	char errbuf[AIRPCAP_ERRBUF_SIZE];
 	PAirpcapHandle airpcap_handle;
 	u_int32_t freq_chan = 108;
 	PPI_PACKET_HEADER *radio_header;
 	double testtxrates = 0;
 
+	AirpcapMacAddress MacAddress;
 	if(pcap_findalldevs(&alldevs, errbuf)==-1)
 	{
 		fprintf(stderr, "Error in pcap_findalldevs : %s\n", errbuf);
@@ -453,8 +456,8 @@ int sendPackets(int devno, int ratesend)
 		{
 			tempval = i;
 		}
-		testvalrem = tempval%256;
-		testvalquo = tempval/256;
+		noOfpktSentrem = tempval%256;
+		noOfpktSentquo = tempval/256;
 		sequnit = tempval%16;
 		seqtens = (tempval/16)%16;
 		seqhrds = tempval/256;
