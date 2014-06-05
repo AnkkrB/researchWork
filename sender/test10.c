@@ -6,6 +6,7 @@
 #define Test_tx_len 110
 #define PACKET_BUFFER_SIZE 1073741824
 #define	PPI_FIELD_TYPE_802_11N_MAC_PHY_EXTENSION ((UCHAR)0x04)
+#define WAIT_INTERVAL_MS 1000 
 
 #define verylow 0
 #define low 8
@@ -82,8 +83,8 @@ void receive_loop();
 #define PPI_PFHTYPE_80211NMACPHY 4
 #define PPI_PFHTYPE_80211NMACPHY_SIZE 48
 
-u_int8_t TxPacket[Tx_packet_len + sizeof(PPI_PACKET_HEADER)];
-u_int8_t TxPacket_tst[Test_tx_len+sizeof(PPI_PACKET_HEADER)];
+u_int8_t TxPacket[Tx_packet_len + sizeof(PPI_PACKET_HEADER)] = { 0 };
+u_int8_t TxPacket_tst[Test_tx_len + sizeof(PPI_PACKET_HEADER)] = { 0 };
 
 static int newMCS = 12;
 
@@ -129,6 +130,7 @@ main()
 	LPDWORD lpThreadId;
 	int Sleeptime_new = 624;
 
+	AirpcapMacAddress MacAddress;
 	//Starting a Thread 
 	testhandle = CreateThread(0,0,(LPTHREAD_START_ROUTINE)receive_loop,0,0,0);
 	//Starting a Thread
@@ -440,7 +442,7 @@ void receive_loop()
 		PrintPackets(PacketBuffer, BytesReceived);
 
 		// wait until some packets are available. This prevents polling and keeps the CPU low. 
-		WaitForSingleObject(ReadEvent, 1000);
+		WaitForSingleObject(ReadEvent, WAIT_INTERVAL_MS);
 	}
 }
 int PrintPackets(BYTE *PacketBuffer, ULONG BufferSize)
