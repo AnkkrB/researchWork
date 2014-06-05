@@ -301,7 +301,9 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		}
 	}
 
-	if((GetMicrosecondsElapsed(sendTimer)-dummy)>30000000)
+	// temporary change from 30 sec to 0.3 sec
+	//if((GetMicrosecondsElapsed(sendTimer)-dummy)>30000000) // 30 sec
+	if ((GetMicrosecondsElapsed(sendTimer) - dummy)> 300000) // 0.3 sec
 	{
 		printf("\n2: Testing : %d",(GetMicrosecondsElapsed(sendTimer)-dummy));
 		fprintf(fpData, "\n2: Testing : %d", (GetMicrosecondsElapsed(sendTimer) - dummy));
@@ -311,7 +313,7 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		{
 			noOfpktSent = ((52 * 30 * 1000000) / (Tx_packet_len * 8)) + 0.5;
 			lossrate = (((noOfpktSent-noOfpktRcvd)*100)/noOfpktSent);
-			printf("\n");
+			//lossrate = (((noOfpktSent - noOfpktRcvd) * 100) / noOfpktSent);
 			printf("\n3. Lossrate %d", lossrate);
 			fprintf(fpData, "\n3. Lossrate %d", lossrate);
 		}else{
