@@ -90,6 +90,8 @@ static int newMCS = 12;
 
 int testcounter = 0;
 
+FILE *fpData;
+
 main()
 {
 	pcap_t *winpcap_adapter;
@@ -131,6 +133,10 @@ main()
 	int Sleeptime_new = 624;
 
 	AirpcapMacAddress MacAddress;
+
+	//an
+	// file log operation
+	fpData = fopen("sndData.txt", "a+");
 	//Starting a Thread 
 	testhandle = CreateThread(0,0,(LPTHREAD_START_ROUTINE)receive_loop,0,0,0);
 	//Starting a Thread
@@ -172,8 +178,10 @@ main()
 	}*/
 
 	inum = 1;
-	for(d = alldevs,i=0;i<inum-1; d=d->next, i++)
-		printf("%d, %s", d,d->name);
+	for (d = alldevs, i = 0; i < inum - 1; d = d->next, i++) {
+		printf("\n1: Dev %d, %s", d,d->name);
+		fprintf(fpData, "\n1: Dev %d, %s", d, d->name);
+	}
 
 	//if((winpcap_adapter = pcap_open_live(d->name, 65536, 1, 1000, errbuf))== NULL)
 	if((winpcap_adapter = pcap_open_live(d->name,			
@@ -229,6 +237,21 @@ main()
 			MacAddress.Address[3],
 			MacAddress.Address[4],
 			MacAddress.Address[5]);
+		fprintf(fpData, "\n2: Mac address of Airpcap adapter (main function):\n");
+		fprintf(fpData, "\t\t\t%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+			MacAddress.Address[0],
+			MacAddress.Address[1],
+			MacAddress.Address[2],
+			MacAddress.Address[3],
+			MacAddress.Address[4],
+			MacAddress.Address[5]);
+		fprintf(fpData, "\t\t\t%.2d:%.2d:%.2d:%.2d:%.2d:%.2d\n",
+			MacAddress.Address[0],
+			MacAddress.Address[1],
+			MacAddress.Address[2],
+			MacAddress.Address[3],
+			MacAddress.Address[4],
+			MacAddress.Address[5]);
 		
 		//Including PPI headers over the packet
 
@@ -253,7 +276,8 @@ main()
 			radio_header->PfhLength = PPI_PFHTYPE_80211NMACPHY_SIZE;
 			if(testtxrates!=12)
 			{
-				printf("HI");
+				printf("\n3: Texttxrate is not 12");
+				fprintf(fpData, "\n3: Texttxrate is not 12");
 			}
 			
 			/*if(testtxrates<8)
@@ -307,72 +331,78 @@ main()
 			sendTimer = StartTimer();
 
 
-						seqtemp = 0;
+			seqtemp = 0;
 					
-						for(i=0;i<Tx_packet_Repetitions;i++)
-						{
-							if(i==Tx_packet_Repetitions)
-							{
-								break;
-							}
-							radio_header->MCS = (UCHAR)(newMCS);
-							printf("\n");
-							printf("%d",newMCS);
-							printf("\n");
-							if(i==0)
-							{
-								tempval = i;
-							}
-							//Seq No calculation
-						testvalrem = tempval%256;
-						testvalquo = tempval/256;
-						sequnit = tempval%16;
-						seqtens = (tempval/16)%16;
-						seqhrds = tempval/256;
-						//Frame Number and Sequence Numbers
-						TxPacket[radio_header->PphLength+22] = fragno+16*sequnit;	//1
-						//TxPacket[radio_header->PphLength+22] = il+16*sequnit;
-						TxPacket[radio_header->PphLength+23] = seqtens+seqhrds*16;	//A
-
-						TxPacket[radio_header->PphLength+35] = ratesend;
-
-						if(tempval==4095)
-						{
-							tempval = 0;
-							fragno++;
-						}else
-						{
-							tempval++;
-						}
-						if(pcap_sendpacket(winpcap_adapter, TxPacket, Tx_packet_len + sizeof(PPI_PACKET_HEADER)) != 0)
-						{
-							printf("Error sending the packet: %s\n", pcap_geterr(winpcap_adapter));
-							pcap_close(winpcap_adapter);
-							return -1;
-						}
-						else
-						{
-							//printf("%d : %d",i,(GetMicrosecondsElapsed(sendTimer)-dummy));
-							//printf("\n");
-							if(newMCS == 4)
-							{
-								Sleeptime_new = 900;
-							}else
-							{
-								Sleeptime_new = 624;
-							}
-							while((GetMicrosecondsElapsed(sendTimer)-dummy)<Sleeptime_new);
-							dummy = GetMicrosecondsElapsed(sendTimer);
-							seqtemp++;
-						}
-					}
-//
-				//	}
-		/*			}
+			for(i=0;i<Tx_packet_Repetitions;i++)
+			{	
+				if(i==Tx_packet_Repetitions)
+				{
+					break;
 				}
-			}*/
+				radio_header->MCS = (UCHAR)(newMCS);
+				printf("\n4: newMCS: %d",newMCS);
+				fprintf(fpData, "\n4: newMCS: %d", newMCS);
+				if(i==0)
+				{
+					tempval = i;
+				}
+				//Seq No calculation
+				testvalrem = tempval%256;
+				testvalquo = tempval/256;
+				sequnit = tempval%16;
+				seqtens = (tempval/16)%16;
+				seqhrds = tempval/256;
+				//Frame Number and Sequence Numbers
+				TxPacket[radio_header->PphLength+22] = fragno+16*sequnit;	//1
+				//TxPacket[radio_header->PphLength+22] = il+16*sequnit;
+				TxPacket[radio_header->PphLength+23] = seqtens+seqhrds*16;	//A
+
+				TxPacket[radio_header->PphLength+35] = ratesend;
+				TxPacket[radio_header->PphLength + 36] = ascii++;
+
+				if(tempval==4095)
+				{
+					tempval = 0;
+					fragno++;
+				}else
+				{
+					tempval++;
+				}
+				
+				printf("\n5: psend ");
+				fprintf(fpData, "\n5: psend = %d ", ascii-1);
+
+
+				if(pcap_sendpacket(winpcap_adapter, TxPacket, Tx_packet_len + sizeof(PPI_PACKET_HEADER)) != 0)
+				{
+					printf("Error sending the packet: %s\n", pcap_geterr(winpcap_adapter));
+					fprintf(fpData, "\nE1: Error sending the packet: %s\n", pcap_geterr(winpcap_adapter));
+					pcap_close(winpcap_adapter);
+					return -1; 
+				}
+				else
+				{
+					//printf("%d : %d",i,(GetMicrosecondsElapsed(sendTimer)-dummy));
+					
+					if(newMCS == 4)
+					{
+						fprintf(fpData, "\n6: psend successful 900");
+						Sleeptime_new = 900;
+					}else
+					{
+						fprintf(fpData, "\n6: psend successful 624");
+						Sleeptime_new = 624;
+					}
+					while((GetMicrosecondsElapsed(sendTimer)-dummy)<Sleeptime_new);
+					dummy = GetMicrosecondsElapsed(sendTimer);
+					seqtemp++;
+				}
+				
+
+			}
 
 		pcap_close(winpcap_adapter);
+		fclose(fpData);
 		return 0;
 }
 
@@ -391,15 +421,18 @@ void receive_loop()
 	if(!AirpcapGetDeviceList(&AllDevs, Ebuf))
 	{
 		printf("Unable to retrieve the device list: %s\n", Ebuf);
+		fprintf(fpData, "\nE2: Unable to retrieve the device list: %s\n", Ebuf);
 		EXIT_FAILURE;
 	}
 
 	for(TmpDev = AllDevs, i = 0; i < Inum-1 ;TmpDev = TmpDev->next, i++);
 
+	fprintf(fpData,"\%s is opened : ", TmpDev->Name);
 	Ad = AirpcapOpen(TmpDev->Name, Ebuf);
 	if(!Ad)
 	{
 		printf("Error opening the adapter: %s\n", Ebuf);
+		fprintf(fpData, "\nE3: Error opening the adapter: %s\n", Ebuf);
 		EXIT_FAILURE;
 	}
 
@@ -408,12 +441,16 @@ void receive_loop()
 	if(!AirpcapSetLinkType(Ad, AIRPCAP_LT_802_11_PLUS_PPI))
 	{
 		printf("Error setting the link layer: %s\n", AirpcapGetLastError(Ad));
+		fprintf(fpData, "\nE4: Error setting the link layer: %s\n", AirpcapGetLastError(Ad));
 		AirpcapClose(Ad);
 		EXIT_FAILURE;
 	}
+	//An - this below event is signalled when at least mintocopy bytes are present in the kernel buffer. 
+	//This event can be used by WaitForSingleObject() and WaitForMultipleObjects() to create blocking behavior when reading packets from one or more adapters
 	if(!AirpcapGetReadEvent(Ad, &ReadEvent))
 	{
 		printf("Error getting the read event: %s\n", AirpcapGetLastError(Ad));
+		fprintf(fpData, "\nE7: Error getting the read event: %s\n", AirpcapGetLastError(Ad));
 		AirpcapClose(Ad);
 		EXIT_FAILURE;
 	}
@@ -422,9 +459,11 @@ void receive_loop()
 	if(!PacketBuffer)
 	{
 		printf("No memory for the packet buffer\n");
+		fprintf(fpData, "\nE8: No memory for the packet buffer\n");
 		AirpcapClose(Ad);
 		EXIT_FAILURE;
 	}
+	fprintf(fpData, "Ad handle : %d", Ad);
 	while(TRUE)
 	{
 		if(!AirpcapRead(Ad, 
@@ -433,12 +472,18 @@ void receive_loop()
 			&BytesReceived))
 		{
 			printf("Error receiving packets: %s\n", AirpcapGetLastError(Ad));
-			free(PacketBuffer);
-			AirpcapClose(Ad);
+			fprintf(fpData, "\nE9: Error receiving packets: %s\n", AirpcapGetLastError(Ad));
+		//	free(PacketBuffer);	//An disabled freeing and close function as program runs in loop and this closure causes runtime issues / access violation
+		//	AirpcapClose(Ad);	// TBD analyze how to creating blocking effect for the read function
 			EXIT_FAILURE;
+		} else {
+			fprintf(fpData,"\nAirpcapRead success");
 		}
 
 		// parse the buffer and print the packets
+		printf("\n7: BytesReceived = %d", BytesReceived);
+		fprintf(fpData, "\n7: BytesReceived = %d", BytesReceived);
+		
 		PrintPackets(PacketBuffer, BytesReceived);
 
 		// wait until some packets are available. This prevents polling and keeps the CPU low. 
@@ -471,7 +516,8 @@ int PrintPackets(BYTE *PacketBuffer, ULONG BufferSize)
 		 
 		a = PrintFrameData(pChar+len, TLen-len);
 
-		printf("\n");
+		printf("\n8: ");
+		fprintf(fpData, "\n8: ");
 	}
 	return 0;
 }
@@ -488,17 +534,17 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 	ulLines = (PayloadLen + 15) / 16;
 	Base = Payload;
 	xlength = PayloadLen-4;
-	printf("\n");
-	printf("u_char : %d",sizeof(char));
-	printf("\n");
-	printf("BYTE : %d",sizeof(BYTE));
-	printf("\n");
-if(xlength==110)
+	printf("\n9: u_char : %d",sizeof(char));
+	fprintf(fpData, "\n9: u_char : %d", sizeof(char));
+	printf("\n10: BYTE : %d",sizeof(BYTE));
+	fprintf(fpData, "\n10: BYTE : %d", sizeof(BYTE));
+	
+	if(xlength==110)
 	{
 		testcounter++;
-		printf("\n");
-		printf("%d",testcounter);
-		printf("\n");
+		
+		printf("\n11: testcounter %d",testcounter);
+		fprintf(fpData, "\n11: testcounter %d", testcounter);
 	}
 
 	for(i = 0; i < ulLines; i++)
@@ -518,19 +564,27 @@ if(xlength==110)
 				//x = (char *) Payload++;
 				//a = atoi(x);
 				
-				printf("\n");
+				printf("\n12: Payload ");
 				printf("%02x",*(BYTE *)Payload++);
 				printf("\n");
+				fprintf(fpData, "\n12: Payload ");
+				fprintf(fpData, "%02x", *(BYTE *)Payload++);
+				fprintf(fpData, "\n");
 				/*if(count_test == 49)
 				{
 				if(count_test ==  34)
 				{*/
 					b = *(BYTE *)Payload++;
-					printf("\n");
+					printf("\n13: Payload ");
 					printf( "%d real : %d ",count_test, b);
 					printf("\n");
 					printf("%d hex : %02x",count_test,*(BYTE *)Payload++);
 					printf("\n");
+					printf(fpData, "\n13: Payload ");
+					printf(fpData, "%d real : %d ", count_test, b);
+					printf(fpData, "\n");
+					printf(fpData, "%d hex : %02x", count_test, *(BYTE *)Payload++);
+					printf(fpData, "\n");
 					if(count_test ==  34)
 					{
 						if(b==9)
