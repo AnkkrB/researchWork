@@ -34,6 +34,7 @@ pTimer sendTimer;
 int dummy = 0, devicenum = 0;
 int noOfpktRcvd = 0, tempcounterrssicombined = 0, rssitotalcount = 0;
 
+FILE *fpData;
 
 main()
 {
@@ -134,6 +135,11 @@ main()
 		printf("Error retrieving the MAC address: %s\n", AirpcapGetLastError(Ad));
 		return -1;
 	}
+	// file logging
+	fpData = fopen("rcvData.txt", "a+");
+	//
+	// Print the address
+	//
 	printf("\nMAC address of Airpcap adapter (main function):\n");
 	printf("\t\t\t%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",	
 		MacAddress.Address[0],
@@ -149,6 +155,23 @@ main()
 		MacAddress.Address[3],
 		MacAddress.Address[4],
 		MacAddress.Address[5]);
+
+	fprintf(fpData, "\nMAC address of Airpcap adapter (main function):\n");
+	fprintf(fpData, "\t\t\t%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+		MacAddress.Address[0],
+		MacAddress.Address[1],
+		MacAddress.Address[2],
+		MacAddress.Address[3],
+		MacAddress.Address[4],
+		MacAddress.Address[5]);
+	fprintf(fpData, "\t\t\t%.2d:%.2d:%.2d:%.2d:%.2d:%.2d\n",
+		MacAddress.Address[0],
+		MacAddress.Address[1],
+		MacAddress.Address[2],
+		MacAddress.Address[3],
+		MacAddress.Address[4],
+		MacAddress.Address[5]);
+
 	//
 	// Set the link layer to 802.11 plus ppi headers
 	//
@@ -161,7 +184,8 @@ main()
 
 	//
 	// Get the read event
-	//
+	//An
+	// Gets an event that is signaled when that is signalled when packets are available in the kernel buffer
 	if(!AirpcapGetReadEvent(Ad, &ReadEvent))
 	{
 		printf("Error getting the read event: %s\n", AirpcapGetLastError(Ad));
@@ -190,6 +214,8 @@ main()
 	while(TRUE)
 	{
 	    // capture the packets
+		//An
+		// Fills a user-provided buffer with zero or more packets that have been captured on the referenced adapter. 
 		if(!AirpcapRead(Ad, 
 			PacketBuffer, 
 			PACKET_BUFFER_SIZE, 
@@ -202,11 +228,15 @@ main()
 		}
 
 		// parse the buffer and print the packets
+		printf("\n7: BytesReceived = %d", BytesReceived);
+		fprintf(fpData, "\n7: BytesReceived = %d", BytesReceived);
+
 		PrintPackets(PacketBuffer, BytesReceived);
 
 		// wait until some packets are available. This prevents polling and keeps the CPU low. 
 		WaitForSingleObject(ReadEvent, WAIT_INTERVAL_MS);
 	}
+	fclose(fpData);
 	return 0;
 }
 ///////////////////////////////////////////////////////////////////////
@@ -242,7 +272,8 @@ void PrintPackets(BYTE *PacketBuffer, ULONG BufferSize)
 		 
 		PrintFrameData(pChar+len, TLen-len);
 
-		printf("\n");
+		printf("\n0: ");
+		fprintf(fpData, "\n0: ");
 	}
 }
 ///////////////////////////////////////////////////////////////////////
@@ -261,9 +292,8 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 	if (xlength == Tx_packet_len)
 	{
 		noOfpktRcvd++;
-		printf("\n");
-		printf("%d",testcounter);
-		printf("\n");
+		printf("\n1: %d",noOfpktRcvd);
+		fprintf(fpData, "1: %d", noOfpktRcvd);
 		if(tempcounterrssicombined<=20) //Change to 10 finally
 		{
 			rssitotalcount++;
@@ -273,9 +303,8 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 	if((GetMicrosecondsElapsed(sendTimer)-dummy)>30000000)
 	{
-		printf("\n");
-		printf("Testing : %d",(GetMicrosecondsElapsed(sendTimer)-dummy));
-		printf("\n");
+		printf("\n2: Testing : %d",(GetMicrosecondsElapsed(sendTimer)-dummy));
+		fprintf(fpData, "\n2: Testing : %d", (GetMicrosecondsElapsed(sendTimer) - dummy));
 		//Send the packet
 		printf("HI");
 		if(mcscode!=4)
@@ -283,14 +312,13 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 			noOfpktSent = ((52 * 30 * 1000000) / (Tx_packet_len * 8)) + 0.5;
 			lossrate = (((noOfpktSent-noOfpktRcvd)*100)/noOfpktSent);
 			printf("\n");
-			printf("%d", lossrate);
-			printf("\n");
+			printf("\n3. Lossrate %d", lossrate);
+			fprintf(fpData, "\n3. Lossrate %d", lossrate);
 		}else{
 			noOfpktSent = ((39*30*1000000)/(Tx_packet_len * +8))+0.5;
 			lossrate = (((noOfpktSent-noOfpktRcvd)*100)/noOfpktSent);
-			printf("\n");
-			printf("%d", lossrate);
-			printf("\n");
+			printf("\n4: Lossrate %d", lossrate);
+			fprintf(fpData, "\n4: Lossrate %d", lossrate);
 		}
 		//an 
 		if (noOfpktRcvd>0) // temp fix for runtime exception // TBD analyze
@@ -298,12 +326,15 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		if((100-lossrate)<85 && (100-lossrate)>=70 && (x>=60))
 		{
 			mcscode = 5;
+			fprintf(fpData, "\n5: mcscode = 5");
 		}else if((100-lossrate)<70  && (x>=60))
 		{
 			mcscode = 4;
+			fprintf(fpData, "\n6: mcscode = 4");
 		}else
 		{
 			mcscode = 9;
+			fprintf(fpData, "\n7: mcscode = 9");
 		}
 		dummyval = sendPackets(devicenum,mcscode);
 		if(dummyval == 0)
@@ -325,38 +356,48 @@ int sendPackets(int devno, int ratesend)
 	PPI_PACKET_HEADER *radio_header;
 	double testtxrates = 0;
 
+	int ascii = 0;
+
+	//An
 	AirpcapMacAddress MacAddress;
+	fprintf(fpData, "\n8: Inside sendPackets function");
+
 	if(pcap_findalldevs(&alldevs, errbuf)==-1)
 	{
 		fprintf(stderr, "Error in pcap_findalldevs : %s\n", errbuf);
+		fprintf(fpData, "\n9: Error in pcap_findalldevs : %s\n", errbuf);
 		return -1;
 	}
 	if(alldevs == NULL)
 	{
 		printf("No INTERFACE is found");
+		fprintf(fpData, "\nNo INTERFACE is found");
 		return -1;
 	}
 
-	for(d = alldevs,i=0;i<devno-1; d=d->next, i++)
-		printf("%d, %s", d,d->name);
-
+	for (d = alldevs, i = 0; i < devno - 1; d = d->next, i++) {
+		printf("\n10: Dev %d, %s", d,d->name);
+		fprintf(fpData, "\n10: Dev %d, %s", d, d->name);
+	}
 	if((winpcap_adapter = pcap_open_live(d->name,			
-		65536,												
+											65536,												
 															
-		1,													
-		1000,												
-		errbuf												
-		)) == NULL)
-		{
-			printf("Error in opening adapter : (%s)", errbuf);
-			pcap_freealldevs(alldevs);
-			return -1;
-		}
+											1,													
+											1000,												
+											errbuf												
+											)) == NULL)
+	{
+		printf("Error in opening adapter : (%s)", errbuf);
+		fprintf(fpData, "\n11: Error in opening adapter : (%s)", errbuf);
+		pcap_freealldevs(alldevs);
+		return -1;
+	}
 	airpcap_handle = (PAirpcapHandle)pcap_get_airpcap_handle(winpcap_adapter);
 
 	if(airpcap_handle == NULL)
 	{
 		printf("Problem in opening Aipcap handler");
+		fprintf(fpData, "\n12: Problem in opening Aipcap handler");
 		pcap_close(winpcap_adapter);
 		return -1;
 	}
@@ -364,15 +405,18 @@ int sendPackets(int devno, int ratesend)
 	if(!AirpcapSetDeviceChannel(airpcap_handle, freq_chan))
 	{
 		printf("Error in Setting the Channel : %s", AirpcapGetLastError(airpcap_handle));
+		fprintf(fpData, "\n13: Error in Setting the Channel : %s", AirpcapGetLastError(airpcap_handle));
 		return -1;
 	}
 
 	if(!AirpcapSetLinkType(airpcap_handle, AIRPCAP_LT_802_11_PLUS_PPI))
 	{
-	printf("Error in Setting the Link Layer %s \n", AirpcapGetLastError(airpcap_handle));
-	pcap_close(winpcap_adapter);
-	return -1;
+		printf("Error in Setting the Link Layer %s \n", AirpcapGetLastError(airpcap_handle));
+		fprintf(fpData, "\n14: Error in Setting the Link Layer %s \n", AirpcapGetLastError(airpcap_handle));
+		pcap_close(winpcap_adapter);
+		return -1;
 	}
+
 	//An
 	// Get the MAC address
 	//
@@ -415,6 +459,7 @@ int sendPackets(int devno, int ratesend)
 	//Frame Control
 	TxPacket_tst[radio_header->PphLength] = 8;
 	TxPacket_tst[radio_header->PphLength+1] = 218;
+	//Duration / ID
 	TxPacket_tst[radio_header->PphLength+2] = 186;
 	TxPacket_tst[radio_header->PphLength+3] = 113;
 	
@@ -470,7 +515,7 @@ int sendPackets(int devno, int ratesend)
 			ratesend = 9;
 		}
 		TxPacket_tst[radio_header->PphLength+33] = (u_char)ratesend & 0xff;
-		
+		TxPacket_tst[radio_header->PphLength + 34] = ascii++;
 		if(tempval==4095)
 		{
 			tempval = 0;
@@ -478,14 +523,15 @@ int sendPackets(int devno, int ratesend)
 		{
 			tempval++;
 		}
-
-		if(pcap_sendpacket(winpcap_adapter, TxPacket_tst, Test_tx_len + sizeof(PPI_PACKET_HEADER)) != 0)
+		fprintf(fpData, "\n18: psend = %d", ascii-1);
+		if (pcap_sendpacket(winpcap_adapter, TxPacket_tst, Tx_packet_len + sizeof(PPI_PACKET_HEADER)) != 0)
 		{
 			printf("Error sending the packet: %s\n", pcap_geterr(winpcap_adapter));
+			fprintf(fpData, "\n17: Error sending the packet: %s\n", pcap_geterr(winpcap_adapter));
 			pcap_close(winpcap_adapter);
 			return -1;
-		}else
-		{
+		}else {
+			fprintf(fpData, "\n19: Send packet, after pcap_sendpacket function");
 			Sleep(1);
 		}
 	}
