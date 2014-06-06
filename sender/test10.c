@@ -261,14 +261,13 @@ main()
 		
 		//Including PPI headers over the packet
 
-			if(!AirpcapSetLinkType(airpcap_handle, AIRPCAP_LT_802_11_PLUS_PPI))
-			{
-				printf("Error in Setting the Link Layer %s \n", AirpcapGetLastError(airpcap_handle));
-				pcap_close(winpcap_adapter);
-				return -1;
-			}
+		if(!AirpcapSetLinkType(airpcap_handle, AIRPCAP_LT_802_11_PLUS_PPI))
+		{
+			printf("Error in Setting the Link Layer %s \n", AirpcapGetLastError(airpcap_handle));
+			pcap_close(winpcap_adapter);
+			return -1;
+		}
 		// filter
-#if 1
 		pFilter = malloc(25);
 		pFilter = "ether src 00:80:48:69:34:17";
 		printf("filter is [%s]\n", pFilter);
@@ -302,7 +301,7 @@ main()
 				pcap_close(winpcap_adapter);
 				return -3;
 			}
-
+#if 0
 			//
 			//compile the filter
 			//
@@ -324,11 +323,11 @@ main()
 				pcap_close(winpcap_adapter);
 				return -4;
 			}
-
+#endif
 			pcap_close(dead_p);
 
 		}
-#endif
+
 		// filter
 
 			testpacket = 1;
