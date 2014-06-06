@@ -555,7 +555,7 @@ int PrintPackets(BYTE *PacketBuffer, ULONG BufferSize)
 		pPpiPacketHeader = (PPPI_PACKET_HEADER)pChar;
 		len = pPpiPacketHeader->PphLength;
 		//PpiHdrLen = PpiPrint(pChar, TLen);
-		 
+		fprintf(fpData, "\n****  TLen1 = %d, TLen = %d, Off = %d, len = %d", TLen1, TLen, Off, len);
 		a = PrintFrameData(pChar+len, TLen-len);
 
 		printf("\n8: ");
@@ -588,6 +588,38 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		printf("\n11: testcounter %d",testcounter);
 		fprintf(fpData, "\n11: testcounter %d", testcounter);
 	}
+
+	for (i = 0; i < ulLines; i++)
+	{
+
+		pLine = Payload;
+
+		fprintf(fpData, "%08lx : ", (PCHAR)Payload - (PCHAR)Base);
+
+		ulen = PayloadLen;
+		//ulen = (ulen > 16) ? 16 : ulen;
+		ulen = (ulen > 24) ? 24 : ulen;
+		PayloadLen -= ulen;
+
+		for (j = 0; j<ulen; j++)
+			fprintf(fpData, "%02x ", *(BYTE *)Payload++);
+
+		if (ulen < 16)
+			fprintf(fpData, "%*s", (16 - ulen) * 3, " ");
+
+		Payload = pLine;
+
+		/*	for (j = 0; j < ulen; j++, Payload++)
+		{
+		fprintf(fpData, "%c", isprint((unsigned char)*Payload) ? *Payload : '.');
+		}
+		*/
+		fprintf(fpData, "\n");
+	}
+
+
+
+#if 0
 
 	for(i = 0; i < ulLines; i++)
 	{
@@ -641,5 +673,9 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		}
 		//printf("\n");
 	}
+
+#endif
+
+
 	return 0;
 }
