@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>../;../../;../bpf/;../lbl/;../../../../wpdpack/Include/;../../include;../../../WinPcap_Devpack/Include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../;../../;../bpf/;../lbl/;../../../../wpdpack/Include/;../../include;../../../WinPcap_Devpack/Include/;%(AdditionalIncludeDirectories);C:\PPI work\WinPcap_Devpack\Include;C:\PPI work\Airpcap_Devpack\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;_MBCS;WPCAP;HAVE_REMOTE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
@@ -120,7 +120,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Debug\test.exe</OutputFile>
-      <AdditionalLibraryDirectories>../../debug;../../lib;../../../../wpdpack/lib/;../../../WinPcap_Devpack/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../debug;../../lib;../../../../wpdpack/lib/;../../../WinPcap_Devpack/lib/;%(AdditionalLibraryDirectories);C:\PPI work\WinPcap_Devpack\Lib;C:\PPI work\Airpcap_Devpack\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>airpcap.lib;wpcap.lib;odbc32.lib;odbccp32.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

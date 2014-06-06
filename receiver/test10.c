@@ -448,7 +448,7 @@ int sendPackets(int devno, int ratesend)
 	u_int32_t freq_chan = 108;
 	PPI_PACKET_HEADER *radio_header;
 	double testtxrates = 0;
-	struct bpf_program fcLode;
+	struct bpf_program fcode;
 	char *pFilter = NULL;
 	int ascii = 0;
 
@@ -511,7 +511,6 @@ int sendPackets(int devno, int ratesend)
 		return -1;
 	}
 	// filter
-#if 1
 	pFilter = malloc(25);
 	pFilter = "ether src 00:80:48:6f:23:05";
 	printf("filter is [%s]\n", pFilter);
@@ -545,7 +544,7 @@ int sendPackets(int devno, int ratesend)
 			pcap_close(winpcap_adapter);
 			return -3;
 		}
-
+#if 0
 		//
 		//compile the filter
 		//
@@ -567,11 +566,11 @@ int sendPackets(int devno, int ratesend)
 			pcap_close(winpcap_adapter);
 			return -4;
 		}
-
+#endif
 		pcap_close(dead_p);
 
 	}
-#endif
+
 	// filter
 
 
