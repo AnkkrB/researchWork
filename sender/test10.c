@@ -4,7 +4,7 @@
 //temporary change Tx_packet_Repetitions from 840000 to 2000 (decreased repetitions for quick debugging)
 //#define Tx_packet_Repetitions 840000//1500000 2925000
 #define Tx_packet_Repetitions 2000
-#define Sleeptime 900
+//#define Sleeptime 900
 #define Test_tx_len 110
 #define PACKET_BUFFER_SIZE 1073741824
 #define	PPI_FIELD_TYPE_802_11N_MAC_PHY_EXTENSION ((UCHAR)0x04)
@@ -121,6 +121,10 @@ main()
 
 	pTimer loopTimer;
 	pTimer sendTimer;
+
+	struct bpf_program fcode;
+	char *pFilter = NULL;
+
 	int dummy = 0;
 	BYTE* PacketBuffer;
 
@@ -188,8 +192,7 @@ main()
 
 	//if((winpcap_adapter = pcap_open_live(d->name, 65536, 1, 1000, errbuf))== NULL)
 	if((winpcap_adapter = pcap_open_live(d->name,			
-											65536,												
-															
+											65536,																								
 											1,													
 											1000,												
 											errbuf												
@@ -264,6 +267,69 @@ main()
 				pcap_close(winpcap_adapter);
 				return -1;
 			}
+		// filter
+#if 1
+		pFilter = malloc(25);
+		pFilter = "ether src 00:80:48:69:34:17";
+		printf("filter is [%s]\n", pFilter);
+
+		if (pFilter != NULL)
+		{
+			//
+			// when an AirPcap is accessed with both an AirPcap handle and pcap
+			// handle, changing the linktype with AirpcapSetLinkType will not
+			// be propagated to the pcap_t handle.
+			// As a consequence in order to compile a filter, it's necessary to
+			// create a dead pcap_t instance with the link type set in AirpcapSetLinkType,
+			// compile the filter with this pcap dead instance and then inject the filter
+			// to the pcap_t instance corresponding to the Airpcap device.
+			//
+			// The correspondence between linktypes is the following one:
+			//
+			//      PCAP				    AIRPCAP
+			//  DLT_IEEE802_11_RADIO	AIRPCAP_LT_802_11_PLUS_RADIO
+			//  DLT_PPI					AIRPCAP_LT_802_11_PLUS_PPI
+			//  DLT_IEEE802_11			AIRPCAP_LT_802_11
+			//
+			pcap_t *dead_p;
+
+			dead_p = pcap_open_dead(DLT_PPI, 65536);
+
+			if (dead_p == NULL)
+			{
+				fprintf(stderr, "\nError opening a dead pcap_instance.\n");
+
+				pcap_close(winpcap_adapter);
+				return -3;
+			}
+
+			//
+			//compile the filter
+			//
+			if (pcap_compile(dead_p, &fcode, pFilter, 1, 0xFFFFFFFF) < 0)
+			{
+				fprintf(stderr, "\nError compiling filter: wrong syntax.\n");
+
+				pcap_close(dead_p);
+				pcap_close(winpcap_adapter);
+				return -3;
+			}
+
+			//set the filter
+			if (pcap_setfilter(winpcap_adapter, &fcode)<0)
+			{
+				fprintf(stderr, "\nError setting the filter\n");
+
+				pcap_close(dead_p);
+				pcap_close(winpcap_adapter);
+				return -4;
+			}
+
+			pcap_close(dead_p);
+
+		}
+#endif
+		// filter
 
 			testpacket = 1;
 			//Added for algo impl
@@ -438,6 +504,9 @@ void receive_loop()
 	UINT minBufLen = 4050;
 	UINT* kernelBuf = &minBufLen;
 
+	struct bpf_program fcode;
+	char *pFilter = NULL;
+
 	Inum = 1;
 
 	if(!AirpcapGetDeviceList(&AllDevs, Ebuf))
@@ -467,6 +536,68 @@ void receive_loop()
 		AirpcapClose(Ad);
 		EXIT_FAILURE;
 	}
+
+	// filter
+#if 1
+	pFilter = malloc(25);
+	pFilter = "ether src 00:80:48:69:34:17";
+	printf("filter is [%s]\n", pFilter);
+
+	if (pFilter != NULL)
+	{
+		//
+		// when an AirPcap is accessed with both an AirPcap handle and pcap
+		// handle, changing the linktype with AirpcapSetLinkType will not
+		// be propagated to the pcap_t handle.
+		// As a consequence in order to compile a filter, it's necessary to
+		// create a dead pcap_t instance with the link type set in AirpcapSetLinkType,
+		// compile the filter with this pcap dead instance and then inject the filter
+		// to the pcap_t instance corresponding to the Airpcap device.
+		//
+		// The correspondence between linktypes is the following one:
+		//
+		//      PCAP				    AIRPCAP
+		//  DLT_IEEE802_11_RADIO	AIRPCAP_LT_802_11_PLUS_RADIO
+		//  DLT_PPI					AIRPCAP_LT_802_11_PLUS_PPI
+		//  DLT_IEEE802_11			AIRPCAP_LT_802_11
+		//
+		pcap_t *dead_p;
+
+		dead_p = pcap_open_dead(DLT_PPI, 65536);
+
+		if (dead_p == NULL)
+		{
+			fprintf(stderr, "\nError opening a dead pcap_instance.\n");
+			//pcap_close(winpcap_adapter);
+			return -3;
+		}
+
+		//
+		//compile the filter
+		//
+		if (pcap_compile(dead_p, &fcode, pFilter, 1, 0xFFFFFFFF) < 0)
+		{
+			fprintf(stderr, "\nError compiling filter: wrong syntax.\n");
+			pcap_close(dead_p);
+			return -3;
+		}
+
+		//set the filter
+		if (AirpcapSetFilter(Ad, (void *)&fcode, fcode.bf_len)<0)
+		{
+			fprintf(stderr, "\nError setting the filter %s\n", AirpcapGetLastError(Ad));
+			fprintf(fpData, "\nError setting the filter %s\n", AirpcapGetLastError(Ad));
+			printf("\nError setting the filter %s\n", AirpcapGetLastError(Ad));
+			pcap_close(dead_p);
+			AirpcapClose(Ad);
+			return -4;
+		}
+		pcap_close(dead_p);
+	}
+#endif
+
+	// filter
+
 
 	//An
 #if 0	
