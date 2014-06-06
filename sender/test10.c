@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #define sleep
 #define Tx_packet_len 4050
-//temporary change from 840000 to 2000 (decreased repetitions for quick debugging)
+//temporary change Tx_packet_Repetitions from 840000 to 2000 (decreased repetitions for quick debugging)
 //#define Tx_packet_Repetitions 840000//1500000 2925000
 #define Tx_packet_Repetitions 2000
 #define Sleeptime 900
@@ -420,6 +420,7 @@ main()
 
 			}
 
+		Sleep(10000);
 		pcap_close(winpcap_adapter);
 		fclose(fpData);
 		return 0;
