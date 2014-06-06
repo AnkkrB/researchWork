@@ -291,6 +291,36 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 	ulLines = (PayloadLen + 15) / 16;
 	Base = Payload;
+	fprintf(fpData, "\nPayload_BEGIN: ");
+
+	for (i = 0; i < ulLines; i++)
+	{
+
+		pLine = Payload;
+
+		fprintf(fpData, "%08lx : ", (PCHAR)Payload - (PCHAR)Base);
+
+		ulen = PayloadLen;
+		//ulen = (ulen > 16) ? 16 : ulen;
+		ulen = (ulen > 24) ? 24 : ulen;
+		PayloadLen -= ulen;
+
+		for (j = 0; j<ulen; j++)
+			fprintf(fpData, "%02x ", *(BYTE *)Payload++);
+
+		if (ulen < 16)
+			fprintf(fpData, "%*s", (16 - ulen) * 3, " ");
+
+		Payload = pLine;
+
+	/*	for (j = 0; j < ulen; j++, Payload++)
+		{
+			fprintf(fpData, "%c", isprint((unsigned char)*Payload) ? *Payload : '.');
+		}
+		*/
+		fprintf(fpData, "\n");
+	}
+
 	xlength = PayloadLen-4;
 	if (xlength == Tx_packet_len)
 	{
@@ -473,8 +503,8 @@ int sendPackets(int devno, int ratesend)
 	TxPacket_tst[radio_header->PphLength+5] = 128;
 	TxPacket_tst[radio_header->PphLength+6] = 72;
 	TxPacket_tst[radio_header->PphLength+7] = 111;
-	TxPacket_tst[radio_header->PphLength+8] = 37;
-	TxPacket_tst[radio_header->PphLength+9] = 2;
+	TxPacket_tst[radio_header->PphLength+8] = 35;
+	TxPacket_tst[radio_header->PphLength+9] = 05;
 
 	//Source Address - 00:80:48:6F:23:05
 	TxPacket_tst[radio_header->PphLength + 10] = MacAddress.Address[0];
