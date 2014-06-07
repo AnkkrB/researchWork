@@ -749,16 +749,16 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 		ulen = PayloadLen;
 		//ulen = (ulen > 16) ? 16 : ulen;
-		ulen = (ulen > 24) ? 24 : ulen;
+		ulen = (ulen > 64) ? 64 : ulen;
 		PayloadLen -= ulen;
 
 		for (j = 0; j<ulen; j++)
 			fprintf(fpData, "%02x ", *(BYTE *)Payload++);
 
-		if (ulen < 16)
-			fprintf(fpData, "%*s", (16 - ulen) * 3, " ");
+		//if (ulen < 16)
+			//fprintf(fpData, "%*s", (16 - ulen) * 3, " ");
 
-		Payload = pLine;
+		//Payload = pLine;
 
 		/*	for (j = 0; j < ulen; j++, Payload++)
 		{
