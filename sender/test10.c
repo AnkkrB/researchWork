@@ -490,11 +490,11 @@ main()
 					
 					if(newMCS == 4)
 					{
-						fprintf(fpData, "\n6: psend successful 900");
+						fprintf(fpData, "\n6: psend successful 900\n");
 						Sleeptime_new = 900;
 					}else
 					{
-						fprintf(fpData, "\n6: psend successful 624");
+						fprintf(fpData, "\n6: psend successful 624\n");
 						Sleeptime_new = 624;
 					}
 					while((GetMicrosecondsElapsed(sendTimer)-dummy)<Sleeptime_new);
@@ -748,6 +748,10 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		fprintf(fpData, "%08lx : ", (PCHAR)Payload - (PCHAR)Base);
 
 		ulen = PayloadLen;
+
+		if (ulen == 0)
+			break;
+
 		//ulen = (ulen > 16) ? 16 : ulen;
 		ulen = (ulen > 64) ? 64 : ulen;
 		PayloadLen -= ulen;
@@ -762,7 +766,7 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 		/*	for (j = 0; j < ulen; j++, Payload++)
 		{
-		fprintf(fpData, "%c", isprint((unsigned char)*Payload) ? *Payload : '.');
+			fprintf(fpData, "%c", isprint((unsigned char)*Payload) ? *Payload : '.');
 		}
 		*/
 		fprintf(fpData, "\n");
