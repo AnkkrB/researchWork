@@ -345,22 +345,26 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 	ulLines = (PayloadLen + 15) / 16;
 	Base = Payload;
-	fprintf(fpData, "\nPayload_BEGIN: \n");
+	fprintf(fpData, "\nPayload_BEGIN: %d\n", ulLines);
 
 	for (i = 0; i < ulLines; i++)
 	{
-
 		pLine = Payload;
 
 		fprintf(fpData, "%08lx : ", (PCHAR)Payload - (PCHAR)Base);
 
 		ulen = PayloadLen;
+
+		if (ulen == 0)
+			break;
+
 		//ulen = (ulen > 16) ? 16 : ulen;
 		ulen = (ulen > 64) ? 64 : ulen;
 		PayloadLen -= ulen;
 
-		for (j = 0; j<ulen; j++)
+		for (j = 0; j < ulen; j++) {
 			fprintf(fpData, "%02x ", *(BYTE *)Payload++);
+		}
 
 		//if (ulen < 16)
 			//fprintf(fpData, "%*s", (16 - ulen) * 3, " ");
