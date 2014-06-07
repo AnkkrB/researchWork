@@ -242,7 +242,6 @@ main()
 	}
 #endif
 
-	// filter
 	// Get the read event
 	//An
 	// Gets an event that is signaled when that is signalled when packets are available in the kernel buffer
@@ -349,7 +348,7 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 	ulLines = (PayloadLen + 15) / 16;
 	Base = Payload;
-	fprintf(fpData, "\nPayload_BEGIN: ");
+	fprintf(fpData, "\nPayload_BEGIN: \n");
 
 	for (i = 0; i < ulLines; i++)
 	{
@@ -620,14 +619,32 @@ int sendPackets(int devno, int ratesend)
 	TxPacket_tst[radio_header->PphLength+2] = 186;
 	TxPacket_tst[radio_header->PphLength+3] = 113;
 	
-	//Dest Address - 00:80:48:6F:25:02
+/*	//Dest Address - 00:80:48:6F:25:02
 	TxPacket_tst[radio_header->PphLength+4] = 0;
 	TxPacket_tst[radio_header->PphLength+5] = 128;
 	TxPacket_tst[radio_header->PphLength+6] = 72;
 	TxPacket_tst[radio_header->PphLength+7] = 111;
 	TxPacket_tst[radio_header->PphLength+8] = 35;
 	TxPacket_tst[radio_header->PphLength+9] = 05;
-
+	*/
+	if ((MacAddress.Address[3] == 111) && (MacAddress.Address[4] == 35) && (MacAddress.Address[5] == 05))  {
+		//Dest Address - 00:80:48:69:34:17
+		TxPacket[radio_header->PphLength + 4] = 0;
+		TxPacket[radio_header->PphLength + 5] = 128;
+		TxPacket[radio_header->PphLength + 6] = 72;
+		TxPacket[radio_header->PphLength + 7] = 105;
+		TxPacket[radio_header->PphLength + 8] = 52;
+		TxPacket[radio_header->PphLength + 9] = 23;
+	}
+	else {
+		//Dest Address - 00:80:48:6F:23:05
+		TxPacket_tst[radio_header->PphLength + 4] = 0;
+		TxPacket_tst[radio_header->PphLength + 5] = 128;
+		TxPacket_tst[radio_header->PphLength + 6] = 72;
+		TxPacket_tst[radio_header->PphLength + 7] = 111;
+		TxPacket_tst[radio_header->PphLength + 8] = 35;
+		TxPacket_tst[radio_header->PphLength + 9] = 05;
+	}
 	//Source Address - 00:80:48:6F:23:05
 	TxPacket_tst[radio_header->PphLength + 10] = MacAddress.Address[0];
 	TxPacket_tst[radio_header->PphLength + 11] = MacAddress.Address[1];
