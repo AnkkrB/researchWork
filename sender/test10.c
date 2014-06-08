@@ -90,7 +90,7 @@ u_int8_t TxPacket_tst[Test_tx_len + sizeof(PPI_PACKET_HEADER)] = { 0 };
 
 static int newMCS = 12;
 
-int testcounter = 0;
+int noOfpktRcvd = 0;
 
 FILE *fpData;
 
@@ -705,11 +705,8 @@ int PrintPackets(BYTE *PacketBuffer, ULONG BufferSize)
 		pPpiPacketHeader = (PPPI_PACKET_HEADER)pChar;
 		len = pPpiPacketHeader->PphLength;
 		//PpiHdrLen = PpiPrint(pChar, TLen);
-		fprintf(fpData, "\n****  TLen1 = %d, TLen = %d, Off = %d, len = %d", TLen1, TLen, Off, len);
+		fprintf(fpData, "\n****  TLen1 = %d, TLen = %d, Off = %d, len = %d\n", TLen1, TLen, Off, len);
 		a = PrintFrameData(pChar+len, TLen-len);
-
-		printf("\n8: ");
-		fprintf(fpData, "\n8: ");
 	}
 	return 0;
 }
@@ -727,17 +724,14 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 	ulLines = (PayloadLen + 15) / 16;
 	Base = Payload;
 	xlength = PayloadLen-4;
-	printf("\n9: u_char : %d",sizeof(char));
-	fprintf(fpData, "\n9: u_char : %d", sizeof(char));
-	printf("\n10: BYTE : %d",sizeof(BYTE));
-	fprintf(fpData, "\n10: BYTE : %d", sizeof(BYTE));
+	fprintf(fpData, "\nPayload_BEGIN: ulLines=%d, PayloadLen=%d\n", ulLines, PayloadLen);
 	
-	if(xlength==110)
+	if (xlength == Test_tx_len)
 	{
-		testcounter++;
+		noOfpktRcvd++;
 		
-		printf("\n11: testcounter %d",testcounter);
-		fprintf(fpData, "\n11: testcounter %d", testcounter);
+		printf("\n11: noOfpktRcvd %d",noOfpktRcvd);
+		fprintf(fpData, "\n11: noOfpktRcvd %d", noOfpktRcvd);
 	}
 
 	for (i = 0; i < ulLines; i++)
@@ -758,6 +752,49 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 		for (j = 0; j<ulen; j++)
 			fprintf(fpData, "%02x ", *(BYTE *)Payload++);
+
+	//	Payload = pLine;
+
+		/*
+		for (j = 0; j < ulen; j++)
+		{
+			count_test++;
+			if (count_test >= 25 && count_test <= 45 && xlength == 110)
+			{
+				//a = * (BYTE *)Payload++ ;
+				//x = (char *) Payload++;
+				//a = atoi(x);
+
+				printf("\n12: Payload ");
+				printf("%02x", *(BYTE *)Payload++);
+				printf("\n");
+				fprintf(fpData, "\n12: Payload ");
+				fprintf(fpData, "%02x", *(BYTE *)Payload++);
+				fprintf(fpData, "\n");
+			
+				b = *(BYTE *)Payload++;
+				printf("\n13: Payload ");
+				printf("%d real : %d ", count_test, b);
+				printf("\n");
+				printf("%d hex : %02x", count_test, *(BYTE *)Payload++);
+				printf("\n");
+				printf(fpData, "\n13: Payload ");
+				printf(fpData, "%d real : %d ", count_test, b);
+				printf(fpData, "\n");
+				printf(fpData, "%d hex : %02x", count_test, *(BYTE *)Payload++);
+				printf(fpData, "\n");
+				if (count_test == 34)
+				{
+					if (b == 9)
+					{
+						b == 12;
+					}
+					if (!(b > 12))
+						newMCS = b;
+				}
+			}
+		}
+*/
 
 		//if (ulen < 16)
 			//fprintf(fpData, "%*s", (16 - ulen) * 3, " ");
