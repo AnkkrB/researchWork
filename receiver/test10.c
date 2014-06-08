@@ -345,7 +345,7 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 	ulLines = (PayloadLen + 15) / 16;
 	Base = Payload;
-	fprintf(fpData, "\nPayload_BEGIN: %d\n", ulLines);
+	fprintf(fpData, "\nPayload_BEGIN: ulLines=%d, PayloadLen=%d\n", ulLines, PayloadLen);
 
 	for (i = 0; i < ulLines; i++)
 	{
@@ -383,8 +383,8 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 	if (xlength == Tx_packet_len)
 	{
 		noOfpktRcvd++;
-		printf("\n1: %d",noOfpktRcvd);
-		fprintf(fpData, "1: %d", noOfpktRcvd);
+		printf("\n1:No of packets received %d",noOfpktRcvd);
+		fprintf(fpData, "1:No of packets received %d", noOfpktRcvd);
 		if(tempcounterrssicombined<=20) //Change to 10 finally
 		{
 			rssitotalcount++;
