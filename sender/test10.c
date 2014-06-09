@@ -2,8 +2,8 @@
 #define sleep
 #define Tx_packet_len 4050
 //temporary change Tx_packet_Repetitions from 840000 to 2000 (decreased repetitions for quick debugging)
-//#define Tx_packet_Repetitions 840000//1500000 2925000
-#define Tx_packet_Repetitions 2000
+#define Tx_packet_Repetitions 840000//1500000 2925000
+//#define Tx_packet_Repetitions 2000
 //#define Sleeptime 900
 #define Test_tx_len 110
 #define PACKET_BUFFER_SIZE 1073741824
