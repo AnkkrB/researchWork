@@ -416,6 +416,8 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		//an 
 		if (noOfpktRcvd>0) // temp fix for runtime exception // TBD analyze
 			x = (rssitotalcount/noOfpktRcvd)*100; 
+		else
+			fprintf(fpData, "\nPossible runtime error\n");  //possible runtime error occurrence in file logging
 		if((100-lossrate)<85 && (100-lossrate)>=70 && (x>=60))
 		{
 			mcscode = 5;
