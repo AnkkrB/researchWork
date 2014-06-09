@@ -393,8 +393,8 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 	}
 
 	// temporary change from 30 sec to 0.3 sec
-	//if((GetMicrosecondsElapsed(sendTimer)-dummy)>30000000) // 30 sec
-	if ((GetMicrosecondsElapsed(sendTimer) - dummy)> 300000) // 0.3 sec
+	//if ((GetMicrosecondsElapsed(sendTimer) - dummy)> 300000) // 0.3 sec
+	if((GetMicrosecondsElapsed(sendTimer)-dummy)>30000000) // 30 sec
 	{
 		printf("\n2: Testing : %d",(GetMicrosecondsElapsed(sendTimer)-dummy));
 		fprintf(fpData, "\n2: Testing : %d", (GetMicrosecondsElapsed(sendTimer) - dummy));
