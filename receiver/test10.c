@@ -345,6 +345,8 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 
 	ulLines = (PayloadLen + 15) / 16;
 	Base = Payload;
+	
+#if 0	
 	fprintf(fpData, "\nPayload_BEGIN: ulLines=%d, PayloadLen=%d\n", ulLines, PayloadLen);
 
 	for (i = 0; i < ulLines; i++)
@@ -378,7 +380,7 @@ void PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		*/
 		fprintf(fpData, "\n");
 	}
-
+#endif
 	xlength = PayloadLen-4;
 	if (xlength == Tx_packet_len)
 	{
