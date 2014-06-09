@@ -505,7 +505,7 @@ main()
 
 			}
 
-		Sleep(10000);
+	//	Sleep(10000);
 		pcap_close(winpcap_adapter);
 		fclose(fpData);
 		return 0;
