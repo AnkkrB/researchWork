@@ -733,7 +733,8 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		printf("\n11: noOfpktRcvd %d",noOfpktRcvd);
 		fprintf(fpData, "\n11: noOfpktRcvd %d", noOfpktRcvd);
 	}
-
+#if 0		
+// printing of payload data (new change)
 	for (i = 0; i < ulLines; i++)
 	{
 
@@ -809,10 +810,10 @@ int PrintFrameData(BYTE *Payload, UINT PayloadLen)
 		fprintf(fpData, "\n");
 	}
 
+#endif
 
-
-#if 0
-
+#if 1
+// printing of payload data (earlier)
 	for(i = 0; i < ulLines; i++)
 	{
 		pLine = Payload;
